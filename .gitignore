@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+release/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+
+# Env
+.env
+
+# Archives & binaries
+*.zip
+*.exe
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+*.zip

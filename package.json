@@ -1,0 +1,59 @@
+{
+  "name": "tomato-clock",
+  "version": "1.0.0",
+  "description": "Windows 11 桌面小组件 — 待办清单 + 番茄钟，嵌入桌面壁纸的半透明毛玻璃工具",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "postinstall": "electron-rebuild -f -w koffi",
+    "rebuild": "electron-rebuild -f -w koffi"
+  },
+  "keywords": [
+    "pomodoro",
+    "todo",
+    "desktop-widget",
+    "windows-11",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "dependencies": {
+    "koffi": "^2.9.0",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.34.5"
+  },
+  "build": {
+    "appId": "com.tomato-clock.app",
+    "productName": "TomatoClock",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "src/assets/icons/icon-256.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "shortcutName": "番茄钟"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "native/**/*",
+      "src/**/*",
+      "node_modules/**/*"
+    ]
+  }
+}

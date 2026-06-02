@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src *;">
+    <title>AI 助手 - 番茄钟</title>
+    <link rel="stylesheet" href="styles/ai-chat.css">
+</head>
+<body>
+    <div class="ai-shell">
+        <!-- 标题栏 -->
+        <header class="ai-titlebar">
+            <div class="ai-titlebar-left">
+                <span class="ai-app-icon">🤖</span>
+                <span class="ai-app-name">AI 助手</span>
+                <span class="ai-readonly-tag" title="AI 只能查询数据，不能修改">只读</span>
+            </div>
+            <div class="ai-titlebar-right">
+                <button class="ai-tb-btn" id="aiBtnClear" title="清空对话">🗑️</button>
+                <button class="ai-tb-btn ai-tb-close" id="aiBtnClose" title="关闭">✕</button>
+            </div>
+        </header>
+
+        <!-- 状态条 -->
+        <div class="ai-status" id="aiStatus">检查中...</div>
+
+        <!-- 消息列表 -->
+        <div class="ai-messages" id="aiMessages"></div>
+
+        <!-- 输入区 -->
+        <div class="ai-input-area">
+            <textarea id="aiInput" class="ai-input" placeholder="说点什么... (Enter 发送, Shift+Enter 换行)" rows="2" maxlength="2000"></textarea>
+            <button id="aiSend" class="ai-send-btn">发送</button>
+        </div>
+    </div>
+
+    <script src="js/utils/date-utils.js"></script>
+    <script src="js/utils/dom-utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/todo.js"></script>
+    <script src="js/ai-tools.js"></script>
+    <script src="js/ai-chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
+    <title>Tomato Clock</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- ============================================ -->
+    <!-- 应用容器                                   -->
+    <!-- ============================================ -->
+    <div id="app" class="glass-container">
+
+        <!-- ====== 顶部标题栏 ====== -->
+        <header class="app-header">
+            <div class="header-left">
+                <span class="app-icon">🍅</span>
+                <h1 class="app-title">Tomato Clock</h1>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" id="btnAIChat" title="AI 助手">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v1H7a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-2V5a3 3 0 0 0-3-3z"/>
+                        <circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/>
+                        <path d="M9 16h6"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" id="btnSettings" title="设置">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button class="icon-btn" id="btnKeyboardGarden" title="键盘花园">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22V12"/><path d="M12 12c-4.5 0-7-2.4-7-6 4.5 0 7 2.4 7 6Z"/><path d="M12 12c4.5 0 7-2.4 7-6-4.5 0-7 2.4-7 6Z"/><path d="M5 22h14"/>
+                    </svg>
+                </button>
+                <button class="icon-btn btn-close" id="btnClose" title="关闭 (Esc)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- ====== Tab 切换 ====== -->
+        <div class="tabs">
+            <button class="tab active" data-tab="pomodoro" id="tabPomodoro">
+                <span>🍅</span> 番茄钟
+            </button>
+            <button class="tab" data-tab="todo" id="tabTodo">
+                <span>📋</span> 待办
+            </button>
+            <button class="tab" data-tab="stats" id="tabStats">
+                <span>📊</span> 统计
+            </button>
+        </div>
+
+        <!-- ====== 内容区域 ====== -->
+        <div class="content-area">
+
+            <!-- 番茄钟面板 -->
+            <div class="panel active" id="panelPomodoro">
+                <div class="pomodoro-mode-row">
+                    <div class="pomodoro-mode" id="pomodoroMode">专注时间</div>
+                    <button class="pomo-edit-btn" id="btnEditDuration" title="修改番茄钟时长">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="pomodoro-timer" id="pomodoroTimer">25:00</div>
+
+                <!-- 环形进度条 -->
+                <div class="progress-ring-container">
+                    <svg class="progress-ring" width="180" height="180" viewBox="0 0 180 180">
+                        <circle class="progress-ring-bg" cx="90" cy="90" r="80" />
+                        <circle class="progress-ring-fill" id="progressRing" cx="90" cy="90" r="80"
+                            stroke-linecap="round" />
+                    </svg>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+
+                <!-- 控制按钮 -->
+                <div class="pomodoro-controls">
+                    <button class="pomo-btn start" id="btnStart">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        开始
+                    </button>
+                    <button class="pomo-btn pause" id="btnPause" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                        暂停
+                    </button>
+                    <button class="pomo-btn reset" id="btnReset">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                        </svg>
+                        重置
+                    </button>
+                </div>
+
+                <!-- 番茄计数 -->
+                <div class="pomodoro-count">
+                    <span id="todayPomodoros">今日完成: 0 🍅</span>
+                    <span id="todayFocusTime">专注: 0m</span>
+                </div>
+
+                <!-- 关联任务选择 -->
+                <div class="task-selector">
+                    <label class="task-selector-label">专注任务:</label>
+                    <select id="taskSelect" class="task-select">
+                        <option value="">-- 无关联任务 --</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 待办清单面板 -->
+            <div class="panel" id="panelTodo">
+                <!-- 添加任务 -->
+                <div class="todo-input-group">
+                    <input type="text" id="todoInput" class="todo-input"
+                        placeholder="输入新任务..." maxlength="200" autocomplete="off">
+                    <button class="todo-add-btn" id="btnAddTodo" title="添加任务">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="todo-list" id="todoList">
+                    <!-- 由 JS 动态渲染 -->
+                </div>
+
+                <!-- 底部操作 -->
+                <div class="todo-footer">
+                    <span class="todo-count" id="todoCount">0 项待办</span>
+                    <button class="todo-clear-btn" id="btnClearCompleted">
+                        清除已完成
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计面板 -->
+            <div class="panel" id="panelStats">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🍅</div>
+                        <div class="stat-value" id="statPomodoros">0</div>
+                        <div class="stat-label">今日番茄</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value" id="statFocusMinutes">0</div>
+                        <div class="stat-label">专注分钟</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="statTasksDone">0</div>
+                        <div class="stat-label">完成任务</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-value" id="statStreak">0</div>
+                        <div class="stat-label">连续天数</div>
+                    </div>
+                </div>
+                <div class="stats-section stats-spotlight">
+                    <div class="stats-spotlight-main">
+                        <div class="stats-section-eyebrow">今日专注画像</div>
+                        <div class="stats-focus-score-row">
+                            <div>
+                                <div class="stats-focus-score" id="statFocusScore">0%</div>
+                                <div class="stats-focus-caption" id="statFocusCaption">还没有完成专注轮次</div>
+                            </div>
+                            <div class="stats-mini-kpis">
+                                <div class="stats-mini-kpi">
+                                    <span class="stats-mini-label">键盘</span>
+                                    <strong id="statKeystrokes">0</strong>
+                                </div>
+                                <div class="stats-mini-kpi">
+                                    <span class="stats-mini-label">点击</span>
+                                    <strong id="statClicks">0</strong>
+                                </div>
+                                <div class="stats-mini-kpi">
+                                    <span class="stats-mini-label">活跃</span>
+                                    <strong id="statActiveMinutes">0m</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stats-streak-badge" id="statMomentumBadge">等待点燃</div>
+                </div>
+                <div class="stats-section">
+                    <div class="stats-section-header">
+                        <span class="stats-section-title">⏳ 最近一轮</span>
+                        <span class="stats-section-meta" id="statLastSessionTime">暂无记录</span>
+                    </div>
+                    <div class="stats-session-grid">
+                        <div class="stats-session-item">
+                            <span class="stats-session-label">强度</span>
+                            <strong id="statLastSessionScore">0%</strong>
+                        </div>
+                        <div class="stats-session-item">
+                            <span class="stats-session-label">敲击</span>
+                            <strong id="statLastSessionKeys">0</strong>
+                        </div>
+                        <div class="stats-session-item">
+                            <span class="stats-session-label">点击</span>
+                            <strong id="statLastSessionClicks">0</strong>
+                        </div>
+                        <div class="stats-session-item">
+                            <span class="stats-session-label">活跃</span>
+                            <strong id="statLastSessionActive">0m</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="stats-section">
+                    <div class="stats-section-header">
+                        <span class="stats-section-title">🕒 专注热力</span>
+                        <span class="stats-section-meta" id="statPeakHour">峰值时段 --</span>
+                    </div>
+                    <div class="stats-heatmap" id="statsHeatmap"></div>
+                </div>
+                <div class="stats-section">
+                    <div class="stats-section-header">
+                        <span class="stats-section-title">🎮 今日成就</span>
+                        <span class="stats-section-meta" id="statAchievementHint">完成更多轮次会解锁</span>
+                    </div>
+                    <div class="stats-achievements" id="statsAchievements"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 设置弹窗                                   -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="settingsOverlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">⚙️ 设置</h2>
+                <div class="modal-header-actions">
+                    <button class="icon-btn" id="btnOpenMonthView" title="月视图">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn modal-close" id="btnModalClose" title="关闭">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 设置 Tab -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-mtab="daily">📅 每日待办</button>
+                <button class="modal-tab" data-mtab="completed">✅ 已完成</button>
+                <button class="modal-tab" data-mtab="quickadd">⚡ 快速添加</button>
+                <button class="modal-tab" data-mtab="appearance">🎨 外观</button>
+                <button class="modal-tab" data-mtab="ai">🤖 AI 助手</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Tab 1: 每日待办 -->
+                <div class="modal-panel active" id="mtabDaily">
+                    <div class="date-picker-row">
+                        <button class="date-arrow" id="btnDatePrev" title="前一天">◀</button>
+                        <input type="date" id="dailyDatePicker" class="date-input">
+                        <button class="date-arrow" id="btnDateNext" title="后一天">▶</button>
+                        <button class="date-today-btn" id="btnTodayDate">今天</button>
+                    </div>
+                    <div class="daily-todo-header">
+                        <span class="daily-todo-title" id="dailyDateTitle">📋 2026-05-24 的待办</span>
+                        <span class="daily-todo-count" id="dailyTodoCount">0 项</span>
+                    </div>
+                    <div class="daily-todo-list" id="dailyTodoList">
+                        <!-- JS 动态渲染 -->
+                    </div>
+                    <div class="daily-todo-input-row">
+                        <input type="text" id="dailyTodoInput" class="todo-input"
+                            placeholder="添加任务到该日期..." maxlength="200">
+                        <button class="todo-add-btn" id="btnDailyAdd">+</button>
+                    </div>
+                </div>
+
+                <!-- Tab 2: 已完成任务 -->
+                <div class="modal-panel" id="mtabCompleted">
+                    <div class="completed-header">
+                        <span class="completed-title">✅ 已完成任务</span>
+                        <button class="todo-clear-btn" id="btnClearAllCompleted">清除全部</button>
+                    </div>
+                    <div class="completed-list" id="completedList">
+                        <!-- JS 动态渲染 -->
+                    </div>
+                </div>
+
+                <!-- Tab 3: 快速添加 -->
+                <div class="modal-panel" id="mtabQuickAdd">
+                    <div class="quickadd-form">
+                        <label class="quickadd-label">任务内容</label>
+                        <input type="text" id="quickaddInput" class="todo-input"
+                            placeholder="输入任务..." maxlength="200">
+                        <label class="quickadd-label" style="margin-top:12px;">分配日期</label>
+                        <input type="date" id="quickaddDate" class="date-input">
+                        <label class="quickadd-label" style="margin-top:12px;">重复周期</label>
+                        <select id="quickaddRecurring" class="task-select">
+                            <option value="none">不重复</option>
+                            <option value="daily">每天</option>
+                            <option value="weekdays">工作日（周一至周五）</option>
+                            <option value="weekly">每周</option>
+                        </select>
+                        <button class="quickadd-submit" id="btnQuickAdd">➕ 添加任务</button>
+                    </div>
+                </div>
+
+                <!-- Tab 4: 外观设置 -->
+                <div class="modal-panel" id="mtabAppearance">
+                    <!-- 番茄钟设置 -->
+                    <div class="appearance-section">
+                        <label class="appearance-label">🍅 番茄钟时长 (分钟)</label>
+                        <div class="duration-row">
+                            <div class="duration-field">
+                                <span class="duration-label">专注</span>
+                                <input type="number" id="focusDuration" class="duration-input" min="1" max="120" value="25">
+                                <span class="duration-unit">分</span>
+                            </div>
+                            <div class="duration-field">
+                                <span class="duration-label">休息</span>
+                                <input type="number" id="breakDuration" class="duration-input" min="1" max="60" value="5">
+                                <span class="duration-unit">分</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 主题配色 -->
+                    <div class="appearance-section">
+                        <label class="appearance-label">🎨 主题配色</label>
+                        <div class="theme-grid">
+                            <button class="theme-card active" data-theme="tomato"><span class="theme-swatch" style="background:#E85D3A"></span><span>番茄红</span></button>
+                            <button class="theme-card" data-theme="ocean"><span class="theme-swatch" style="background:#2E86DE"></span><span>海洋蓝</span></button>
+                            <button class="theme-card" data-theme="forest"><span class="theme-swatch" style="background:#27AE60"></span><span>森林绿</span></button>
+                            <button class="theme-card" data-theme="purple"><span class="theme-swatch" style="background:#8E44AD"></span><span>幻紫</span></button>
+                            <button class="theme-card" data-theme="dark"><span class="theme-swatch" style="background:#1a1a2e"></span><span>深空黑</span></button>
+                        </div>
+                    </div>
+                    <div class="appearance-section">
+                        <label class="appearance-label">🔍 背景不透明度</label>
+                        <div class="slider-row">
+                            <input type="range" id="opacitySlider" class="app-slider" min="20" max="90" value="55">
+                            <span class="slider-value" id="opacityValue">55%</span>
+                        </div>
+                    </div>
+                    <div class="appearance-section">
+                        <label class="appearance-label">🥶 毛玻璃模糊强度</label>
+                        <div class="slider-row">
+                            <input type="range" id="blurSlider" class="app-slider" min="4" max="40" value="24">
+                            <span class="slider-value" id="blurValue">24px</span>
+                        </div>
+                    </div>
+                    <div class="appearance-section">
+                        <label class="appearance-label">📌 窗口位置</label>
+                        <div class="position-grid">
+                            <button class="pos-btn" data-pos="top-left">↖ 左上</button>
+                            <button class="pos-btn" data-pos="top-right">↗ 右上</button>
+                            <button class="pos-btn" data-pos="bottom-left">↙ 左下</button>
+                            <button class="pos-btn active" data-pos="bottom-right">↘ 右下</button>
+                        </div>
+                    </div>
+                    <div class="appearance-section">
+                        <label class="appearance-label">⚙️ 其他选项</label>
+                        <div class="checkbox-list">
+                            <label class="app-checkbox"><input type="checkbox" id="chkEmbedDesktop" checked><span>嵌入桌面壁纸</span></label>
+                            <label class="app-checkbox"><input type="checkbox" id="chkAlwaysOnTop"><span>窗口置顶</span></label>
+                            <label class="app-checkbox"><input type="checkbox" id="chkClickThrough"><span>点击穿透模式</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: AI 助手 -->
+                <div class="modal-panel" id="mtabAI">
+                    <div class="appearance-section">
+                        <label class="appearance-label">🤖 AI 助手（OpenAI 兼容格式）</label>
+                        <p class="ai-hint">启用后可点击右上角 🤖 按钮打开聊天窗口。AI 只能<strong>查询</strong>任务/统计，<strong>不能修改任何数据</strong>。</p>
+                    </div>
+                    <div class="appearance-section">
+                        <label class="appearance-label">API Base URL</label>
+                        <input type="text" id="aiBaseUrl" class="ai-input" placeholder="https://api.openai.com/v1">
+                    </div>
+                    <div class="appearance-section">
+                        <label class="appearance-label">API Key</label>
+                        <input type="password" id="aiApiKey" class="ai-input" placeholder="sk-..." autocomplete="off">
+                        <p class="ai-hint">⚠️ 明文存于本机 localStorage，请勿在共享电脑使用。</p>
+                    </div>
+                    <div class="appearance-section">
+                        <label class="appearance-label">Model</label>
+                        <input type="text" id="aiModel" class="ai-input" placeholder="gpt-4o-mini">
+                    </div>
+                    <div class="appearance-section">
+                        <div class="checkbox-list">
+                            <label class="app-checkbox"><input type="checkbox" id="chkAIEnabled"><span>启用 AI 助手（关闭后不会发送任何请求）</span></label>
+                        </div>
+                    </div>
+                    <div class="appearance-section">
+                        <button class="quickadd-submit" id="btnAISave">💾 保存配置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 月视图弹窗                                 -->
+    <!-- ============================================ -->
+    <div class="month-overlay" id="monthViewOverlay">
+        <div class="month-container">
+            <div class="month-header">
+                <h2 class="month-title">🌙 月视图</h2>
+                <div class="month-header-right">
+                    <button class="icon-btn" id="btnMonthSettings" title="打开设置">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn month-close" id="btnMonthClose" title="关闭 (Esc)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- 月份导航 -->
+            <div class="month-nav">
+                <button class="month-nav-btn" id="btnMonthPrev">◀</button>
+                <span class="month-nav-title" id="monthNavTitle">2026年5月</span>
+                <button class="month-nav-btn" id="btnMonthNext">▶</button>
+                <button class="date-today-btn" id="btnMonthToday" style="margin-left:8px;">今天</button>
+            </div>
+            <!-- 日历网格 -->
+            <div class="month-grid" id="monthGrid"></div>
+            <!-- 选中日期详情 -->
+            <div class="month-day-detail" id="monthDayDetail">
+                <div class="day-detail-header">
+                    <span class="day-detail-title" id="dayDetailTitle">选择某天查看详情</span>
+                    <span class="day-detail-count" id="dayDetailCount"></span>
+                </div>
+                <div class="day-detail-list" id="dayDetailList"><div class="daily-todo-empty">👆 点击日历中的日期查看任务</div></div>
+                <div class="daily-todo-input-row" id="dayDetailInputRow" style="display:none;">
+                    <input type="text" id="dayDetailInput" class="todo-input" placeholder="添加任务到该日期..." maxlength="200">
+                    <button class="todo-add-btn" id="btnDayDetailAdd">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 脚本（顺序：utils → 数据层 → 业务层 → 视图层 → 协调器） -->
+    <!-- ============================================ -->
+    <script src="js/utils/date-utils.js"></script>
+    <script src="js/utils/dom-utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/focus-activity.js"></script>
+    <script src="js/todo.js"></script>
+    <script src="js/pomodoro.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/appearance.js"></script>
+    <script src="js/month-view-modal.js"></script>
+    <script src="js/settings-modal.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

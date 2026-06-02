@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
+    <title>键盘花园</title>
+    <link rel="stylesheet" href="styles/keyboard-garden.css">
+</head>
+<body>
+    <div class="garden-shell">
+        <header class="garden-titlebar">
+            <div class="garden-brand">
+                <div class="garden-brand-mark">🌿</div>
+                <div>
+                    <div class="garden-brand-title">键盘花园</div>
+                    <div class="garden-brand-subtitle">每个键位种一株，按键越多越丰收</div>
+                </div>
+            </div>
+            <div class="garden-title-actions">
+                <button class="garden-icon-btn" id="gardenBtnRefresh" title="刷新">↻</button>
+                <button class="garden-icon-btn danger" id="gardenBtnClose" title="关闭">✕</button>
+            </div>
+        </header>
+
+        <main class="garden-main">
+            <section class="garden-dashboard">
+                <div class="garden-hero">
+                    <div class="garden-hero-topline">温室状态</div>
+                    <div class="garden-hero-score" id="gardenCoins">0</div>
+                    <div class="garden-hero-caption">金币库存</div>
+                </div>
+                <div class="garden-stats">
+                    <div class="garden-stat-card">
+                        <span class="garden-stat-label">总收获</span>
+                        <strong id="gardenHarvests">0</strong>
+                    </div>
+                    <div class="garden-stat-card">
+                        <span class="garden-stat-label">总敲击</span>
+                        <strong id="gardenTotalKeys">0</strong>
+                    </div>
+                    <div class="garden-stat-card">
+                        <span class="garden-stat-label">温室等级</span>
+                        <strong id="gardenLevel">Lv.1</strong>
+                    </div>
+                    <div class="garden-stat-card">
+                        <span class="garden-stat-label">上次丰收</span>
+                        <strong id="gardenLastHarvest">暂无</strong>
+                    </div>
+                </div>
+                <div class="garden-banner" id="gardenBanner">按下任意键，让苗开始长。</div>
+            </section>
+
+            <section class="garden-board-section">
+                <div class="garden-section-header">
+                    <span class="garden-section-title">键位苗圃</span>
+                    <span class="garden-section-meta">只展示常用键区，实时响应</span>
+                </div>
+                <div class="garden-board" id="gardenBoard"></div>
+            </section>
+
+            <section class="garden-side-panel">
+                <div class="garden-section-header">
+                    <span class="garden-section-title">丰收排行</span>
+                    <span class="garden-section-meta">最勤劳的键位</span>
+                </div>
+                <div class="garden-ranking" id="gardenRanking"></div>
+
+                <div class="garden-section-header second">
+                    <span class="garden-section-title">最近动态</span>
+                    <span class="garden-section-meta">新输入会实时跳动</span>
+                </div>
+                <div class="garden-feed" id="gardenFeed"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/utils/date-utils.js"></script>
+    <script src="js/utils/dom-utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/focus-activity.js"></script>
+    <script src="js/keyboard-garden.js"></script>
+</body>
+</html>

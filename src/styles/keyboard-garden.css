@@ -1,0 +1,389 @@
+:root {
+    --garden-bg: rgba(20, 18, 30, 0.68);
+    --garden-bg-soft: rgba(255, 255, 255, 0.05);
+    --garden-panel: rgba(255, 255, 255, 0.06);
+    --garden-border: rgba(255, 255, 255, 0.09);
+    --garden-shadow: rgba(0, 0, 0, 0.28);
+    --garden-text: rgba(255, 255, 255, 0.94);
+    --garden-text-dim: rgba(255, 255, 255, 0.58);
+    --garden-green: #7dd87b;
+    --garden-green-deep: #45b76b;
+    --garden-gold: #f6c453;
+    --garden-pink: #ff8db4;
+    --garden-blue: #75bfff;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    color: var(--garden-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: transparent;
+}
+
+body {
+    user-select: none;
+}
+
+.garden-shell {
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    background: var(--garden-bg);
+    border: 1px solid var(--garden-border);
+    border-radius: 16px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 12px 40px var(--garden-shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+    overflow: hidden;
+}
+
+.garden-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 2px 4px 10px;
+    -webkit-app-region: drag;
+}
+
+.garden-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.garden-brand-mark {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    font-size: 17px;
+}
+
+.garden-brand-title {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.garden-brand-subtitle {
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--garden-text-dim);
+}
+
+.garden-title-actions {
+    display: flex;
+    gap: 6px;
+    -webkit-app-region: no-drag;
+}
+
+.garden-icon-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 9px;
+    color: var(--garden-text-dim);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: 0.16s ease;
+}
+
+.garden-icon-btn:hover {
+    color: var(--garden-text);
+    background: rgba(255,255,255,0.12);
+}
+
+.garden-icon-btn.danger:hover {
+    color: #ff958e;
+    background: rgba(239, 83, 80, 0.18);
+}
+
+.garden-main {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-rows: 82px minmax(0, 1fr);
+    gap: 10px;
+}
+
+.garden-dashboard,
+.garden-board-section,
+.garden-side-panel {
+    min-width: 0;
+    background: linear-gradient(140deg, rgba(255,255,255,0.07), rgba(255,255,255,0.035));
+    border: 1px solid var(--garden-border);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.garden-dashboard {
+    grid-column: 1 / span 2;
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.garden-hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 12px;
+    border-radius: 9px;
+    background:
+        radial-gradient(circle at 25% 20%, rgba(246, 196, 83, 0.3), transparent 38%),
+        radial-gradient(circle at 85% 80%, rgba(125, 216, 123, 0.22), transparent 40%),
+        rgba(9, 17, 12, 0.45);
+}
+
+.garden-hero-topline,
+.garden-stat-label,
+.garden-section-meta {
+    font-size: 11px;
+    color: var(--garden-text-dim);
+}
+
+.garden-hero-score {
+    margin-top: 4px;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--garden-gold);
+    font-variant-numeric: tabular-nums;
+}
+
+.garden-hero-caption {
+    font-size: 11px;
+    color: var(--garden-text);
+}
+
+.garden-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.garden-stat-card {
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.18);
+}
+
+.garden-stat-card strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--garden-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.garden-banner {
+    display: none;
+    grid-column: 1 / span 2;
+    margin-top: 2px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    color: var(--garden-text-dim);
+    font-size: 12px;
+}
+
+.garden-board-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.garden-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.garden-section-header.second {
+    margin-top: 14px;
+}
+
+.garden-section-title {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.garden-board {
+    flex: 1;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: repeat(10, minmax(42px, 1fr));
+    gap: 5px;
+    padding-right: 2px;
+}
+
+.garden-key {
+    height: 76px;
+    min-height: 76px;
+    padding: 5px;
+    border-radius: 8px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
+        rgba(8, 14, 11, 0.66);
+    border: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.garden-key.active {
+    transform: translateY(-1px) scale(1.01);
+    border-color: rgba(125, 216, 123, 0.45);
+    box-shadow: 0 0 18px rgba(125, 216, 123, 0.22);
+}
+
+.garden-key-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.garden-key-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.88);
+}
+
+.garden-key-count {
+    font-size: 9px;
+    color: var(--garden-text-dim);
+}
+
+.garden-plant-frame {
+    position: relative;
+    height: 34px;
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.14);
+    overflow: hidden;
+}
+
+.garden-plant-frame.stage-3 {
+    background: rgba(255, 141, 180, 0.08);
+}
+
+.garden-plant-frame.stage-4 {
+    background: rgba(246, 196, 83, 0.10);
+}
+
+.plant-art {
+    width: 40px;
+    height: 40px;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.22));
+    transform: translateY(1px);
+}
+
+.garden-progress {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden;
+}
+
+.garden-progress-bar {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--garden-green), var(--garden-blue));
+}
+
+.garden-footnote {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: var(--garden-text-dim);
+    line-height: 1;
+}
+
+.garden-side-panel {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.garden-ranking,
+.garden-feed {
+    min-height: 0;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.garden-rank-item,
+.garden-feed-item {
+    padding: 8px 9px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.16);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.garden-rank-main,
+.garden-feed-main {
+    min-width: 0;
+}
+
+.garden-rank-title,
+.garden-feed-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--garden-text);
+}
+
+.garden-rank-sub,
+.garden-feed-sub {
+    margin-top: 3px;
+    font-size: 11px;
+    color: var(--garden-text-dim);
+}
+
+.garden-rank-value,
+.garden-feed-value {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--garden-gold);
+    white-space: nowrap;
+}
+
+.garden-empty {
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.12);
+    color: var(--garden-text-dim);
+    font-size: 12px;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.09); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }

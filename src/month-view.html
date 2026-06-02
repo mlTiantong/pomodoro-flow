@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
+    <title>番茄钟 - 周视图</title>
+    <link rel="stylesheet" href="styles/month-view.css">
+</head>
+<body>
+    <div class="mv-glass">
+        <!-- 标题栏 -->
+        <header class="mv-titlebar">
+            <div class="mv-titlebar-left">
+                <span class="mv-app-icon">🍅</span>
+                <span class="mv-app-name">番茄钟 · 周视图</span>
+            </div>
+            <div class="mv-titlebar-right">
+                <button class="mv-tb-btn" id="mvBtnToday" title="跳转到今天">📅 今天</button>
+                <button class="mv-tb-btn mv-tb-close" id="mvBtnClose" title="关闭">✕</button>
+            </div>
+        </header>
+
+        <!-- 导航栏: 4 个箭头 -->
+        <div class="wv-nav">
+            <button class="wv-nav-btn" id="wvBtnPrevWeek" title="上一周">⏪</button>
+            <button class="wv-nav-btn" id="wvBtnPrevDay" title="前一天">◀</button>
+            <span class="wv-nav-title" id="wvNavTitle">5月25日 周一 — 5月31日 周日</span>
+            <button class="wv-nav-btn" id="wvBtnNextDay" title="后一天">▶</button>
+            <button class="wv-nav-btn" id="wvBtnNextWeek" title="下一周">⏩</button>
+        </div>
+
+        <!-- 7 天网格 -->
+        <div class="wv-grid" id="wvGrid"></div>
+    </div>
+
+    <script src="js/utils/date-utils.js"></script>
+    <script src="js/utils/dom-utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/focus-activity.js"></script>
+    <script src="js/todo.js"></script>
+    <script src="js/month-view.js"></script>
+</body>
+</html>
