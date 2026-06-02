@@ -4,11 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
-    <title>键盘花园</title>
+    <title>键盘花园 - 番茄钟</title>
     <link rel="stylesheet" href="styles/keyboard-garden.css">
 </head>
 <body>
     <div class="garden-shell">
+        <!-- 装饰背景层（绝对定位） -->
+        <div class="garden-decor">
+            <div class="decor-sun"></div>
+            <div class="decor-cloud c1"></div>
+            <div class="decor-cloud c2"></div>
+            <div class="decor-cloud c3"></div>
+            <div class="decor-house"></div>
+            <div class="decor-scarecrow"></div>
+            <div class="decor-mailbox"></div>
+            <div class="decor-fence"></div>
+        </div>
+
+        <!-- 动物层（散布在主区，CSS 绝对定位） -->
+        <div class="garden-animals">
+            <div class="garden-animal sheep" data-name="sheep">🐑</div>
+            <div class="garden-animal pig-1" data-name="pig">🐖</div>
+            <div class="garden-animal pig-2" data-name="pig">🐖</div>
+            <div class="garden-animal rabbit" data-name="rabbit">🐰</div>
+            <div class="garden-animal elephant" data-name="elephant">🐘</div>
+            <div class="garden-animal bird-1" data-name="bird">🐦</div>
+            <div class="garden-animal bird-2" data-name="bird">🐤</div>
+            <div class="garden-animal bear" data-name="bear">🐻</div>
+        </div>
+
+        <!-- 标题栏 -->
         <header class="garden-titlebar">
             <div class="garden-brand">
                 <div class="garden-brand-mark">🌿</div>
@@ -18,61 +43,64 @@
                 </div>
             </div>
             <div class="garden-title-actions">
+                <button class="garden-icon-btn" id="gardenBtnStats" title="查看统计">📊</button>
                 <button class="garden-icon-btn" id="gardenBtnRefresh" title="刷新">↻</button>
                 <button class="garden-icon-btn danger" id="gardenBtnClose" title="关闭">✕</button>
             </div>
         </header>
 
+        <!-- 顶部状态条（金币/总收获/总敲击/等级） -->
+        <section class="garden-stats-bar" id="gardenStatsBar">
+            <div class="garden-stat hero">
+                <span class="garden-stat-icon">🪙</span>
+                <strong id="gardenCoins">0</strong>
+                <span class="garden-stat-label">金币</span>
+            </div>
+            <div class="garden-stat">
+                <span class="garden-stat-icon">🌾</span>
+                <strong id="gardenHarvests">0</strong>
+                <span class="garden-stat-label">总收获</span>
+            </div>
+            <div class="garden-stat">
+                <span class="garden-stat-icon">⌨️</span>
+                <strong id="gardenTotalKeys">0</strong>
+                <span class="garden-stat-label">总敲击</span>
+            </div>
+            <div class="garden-stat">
+                <span class="garden-stat-icon">🏅</span>
+                <strong id="gardenLevel">Lv.1</strong>
+                <span class="garden-stat-label">温室等级</span>
+            </div>
+            <div class="garden-stat">
+                <span class="garden-stat-icon">⏱️</span>
+                <strong id="gardenLastHarvest">暂无</strong>
+                <span class="garden-stat-label">上次丰收</span>
+            </div>
+        </section>
+
+        <!-- 横幅消息（动态文案） -->
+        <div class="garden-banner" id="gardenBanner">按下任意键，让苗开始长。</div>
+
+        <!-- 主键盘区 -->
         <main class="garden-main">
-            <section class="garden-dashboard">
-                <div class="garden-hero">
-                    <div class="garden-hero-topline">温室状态</div>
-                    <div class="garden-hero-score" id="gardenCoins">0</div>
-                    <div class="garden-hero-caption">金币库存</div>
-                </div>
-                <div class="garden-stats">
-                    <div class="garden-stat-card">
-                        <span class="garden-stat-label">总收获</span>
-                        <strong id="gardenHarvests">0</strong>
-                    </div>
-                    <div class="garden-stat-card">
-                        <span class="garden-stat-label">总敲击</span>
-                        <strong id="gardenTotalKeys">0</strong>
-                    </div>
-                    <div class="garden-stat-card">
-                        <span class="garden-stat-label">温室等级</span>
-                        <strong id="gardenLevel">Lv.1</strong>
-                    </div>
-                    <div class="garden-stat-card">
-                        <span class="garden-stat-label">上次丰收</span>
-                        <strong id="gardenLastHarvest">暂无</strong>
-                    </div>
-                </div>
-                <div class="garden-banner" id="gardenBanner">按下任意键，让苗开始长。</div>
-            </section>
+            <div class="garden-board" id="gardenBoard"></div>
+        </main>
 
-            <section class="garden-board-section">
-                <div class="garden-section-header">
-                    <span class="garden-section-title">键位苗圃</span>
-                    <span class="garden-section-meta">只展示常用键区，实时响应</span>
-                </div>
-                <div class="garden-board" id="gardenBoard"></div>
-            </section>
-
-            <section class="garden-side-panel">
-                <div class="garden-section-header">
-                    <span class="garden-section-title">丰收排行</span>
-                    <span class="garden-section-meta">最勤劳的键位</span>
-                </div>
+        <!-- 浮层：统计侧边栏（默认隐藏，点击"统计"展开） -->
+        <aside class="garden-side-panel" id="gardenSidePanel" hidden>
+            <header class="garden-side-header">
+                <h3>📊 详细统计</h3>
+                <button class="garden-icon-btn" id="gardenSideClose" title="关闭">✕</button>
+            </header>
+            <section class="garden-side-section">
+                <div class="garden-section-title">🏆 丰收排行</div>
                 <div class="garden-ranking" id="gardenRanking"></div>
-
-                <div class="garden-section-header second">
-                    <span class="garden-section-title">最近动态</span>
-                    <span class="garden-section-meta">新输入会实时跳动</span>
-                </div>
+            </section>
+            <section class="garden-side-section">
+                <div class="garden-section-title">📢 最近动态</div>
                 <div class="garden-feed" id="gardenFeed"></div>
             </section>
-        </main>
+        </aside>
     </div>
 
     <script src="js/utils/date-utils.js"></script>
