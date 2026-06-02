@@ -57,9 +57,13 @@ const KeyboardGarden = (() => {
     // SVG 工厂（5 种植物 × 5 阶段 = 25 个）
     // ============================================================
 
+    // 2D 风格描边色（深棕，植物/土壤/水的所有元素统一描边）
+    const STROKE = '#3a2010';
+    const SW = '2';  // 描边宽度
+
     const SVG = {
-        dirt: () => `<ellipse cx="32" cy="56" rx="20" ry="6" fill="#5a3c2d"/>`,
-        water: () => `<ellipse cx="32" cy="58" rx="22" ry="5" fill="#5b8db8"/>
+        dirt: () => `<ellipse cx="32" cy="56" rx="20" ry="6" fill="#5a3c2d" stroke="${STROKE}" stroke-width="${SW}"/>`,
+        water: () => `<ellipse cx="32" cy="58" rx="22" ry="5" fill="#5b8db8" stroke="${STROKE}" stroke-width="${SW}"/>
                       <ellipse cx="32" cy="56" rx="22" ry="2" fill="#7eb0d8" opacity="0.6"/>`,
 
         // 番茄
@@ -241,7 +245,9 @@ const KeyboardGarden = (() => {
 
     function renderPlantSvg(type, stage) {
         const fn = SVG[`${type}_${STAGE_KEYS[stage]}`];
-        return fn ? fn() : SVG.tomato_seed();
+        const raw = fn ? fn() : SVG.tomato_seed();
+        // 给 SVG 根注入默认 stroke，所有子元素继承（2D 描边风格）
+        return raw.replace('<svg ', `<svg stroke="${STROKE}" stroke-width="${SW}" stroke-linejoin="round" stroke-linecap="round" `);
     }
 
     // ============================================================
@@ -337,7 +343,6 @@ const KeyboardGarden = (() => {
             const stage = window.FocusActivity
                 ? FocusActivity.calculateStage(plant.growth || 0, plant.harvests || 0)
                 : (plant.stage || 0);
-            const progress = Math.max(0, Math.min(100, Math.round(plant.growth || 0)));
             const active = Date.now() - new Date(plant.lastPressedAt || 0).getTime() < 900 ? 'active' : '';
             const type = getPlantType(key);
             const decor = getKeyDecor(key);
@@ -349,7 +354,6 @@ const KeyboardGarden = (() => {
                     <span class="garden-key-label">${key}</span>
                     <div class="garden-key-plant">${renderPlantSvg(type, stage)}</div>
                     <div class="garden-key-decor ${decor.position}" data-decor="${decor.type.name}">${decor.type.icon}</div>
-                    <div class="garden-key-progress"><div class="garden-key-progress-fill" style="width:${progress}%"></div></div>
                     <div class="garden-key-harvest">
                         <span class="garden-key-harvest-icon">${harvests > 0 ? '🌾' : '·'}</span>${harvests}
                     </div>
