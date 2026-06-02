@@ -9,6 +9,15 @@
 </head>
 <body>
     <div class="garden-shell">
+        <!-- 天气效果层（z:2，绝对定位） -->
+        <div class="garden-weather">
+            <div class="rain-layer"></div>
+            <div class="lightning-layer"></div>
+            <div class="stars-layer"></div>
+            <div class="sunset-layer"></div>
+            <div class="cloud-overlay"></div>
+        </div>
+
         <!-- 装饰背景层（绝对定位，z:1） -->
         <div class="garden-decor">
             <div class="decor-sun"></div>
@@ -40,19 +49,6 @@
 
             <!-- 前景栅栏（z:50） -->
             <div class="decor-fence"></div>
-        </div>
-
-        <!-- 动物层（z:20） -->
-        <div class="garden-animals">
-            <div class="garden-animal elephant" data-name="elephant">🐘</div>
-            <div class="garden-animal sheep"     data-name="sheep">🐑</div>
-            <div class="garden-animal pig-1"     data-name="pig">🐖</div>
-            <div class="garden-animal pig-2"     data-name="pig">🐖</div>
-            <div class="garden-animal rabbit"    data-name="rabbit">🐰</div>
-            <div class="garden-animal bear"      data-name="bear">🐻</div>
-            <div class="garden-animal chicken"   data-name="chicken">🐔</div>
-            <div class="garden-animal bird-1"    data-name="bird">🐦</div>
-            <div class="garden-animal bird-2"    data-name="bird">🐤</div>
         </div>
 
         <!-- 标题栏 -->

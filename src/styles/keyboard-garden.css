@@ -1,4 +1,6 @@
-/* keyboard-garden.css — 卡通插画风格 v3（2D 增强 + 动物走动 + 删进度条） */
+/* keyboard-garden.css — 卡通插画风格 v4
+ * v4 改动：删动物层 + 7 种天气系统 + 植物贴底
+ */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,29 +16,23 @@ html, body {
 }
 
 :root {
+    /* 默认色（晴天） */
     --sky-top: #7CC4E8;
     --sky-mid: #A8DFEF;
-    --hill-far: #98B89A;
-    --hill-near: #6a9a5a;
     --ground-1: #C8956D;
     --ground-2: #A8754D;
-    --ground-dark: #4a2f1e;
-    --key-face: #FAE3B4;
-    --key-face-hi: #FFE8B0;
     --key-edge: #4a2f1e;
     --key-line: #6b4828;
-    --water-face: #7eb0d8;
-    --water-edge: #3a6a8c;
-    --text-dark: #3a2e26;
-    --text-mid: #6b5a4a;
-    --text-light: #a89886;
     --panel-bg: rgba(255, 248, 230, 0.95);
     --panel-edge: rgba(74, 47, 30, 0.4);
     --shadow: rgba(0, 0, 0, 0.18);
+    --text-dark: #3a2e26;
+    --text-mid: #6b5a4a;
+    --text-light: #a89886;
 }
 
 /* ============================================================
-   外壳 + 多层背景
+   外壳 + 天气系统（按 .weather-* class 切换整套调色）
    ============================================================ */
 
 .garden-shell {
@@ -52,12 +48,8 @@ html, body {
     position: relative;
     overflow: hidden;
     background:
-        /* 远景山（双山形） */
-        linear-gradient(125deg, transparent 60%, var(--hill-far) 60% 63%, transparent 63%),
-        linear-gradient(55deg, transparent 62%, var(--hill-far) 62% 65%, transparent 65%),
-        linear-gradient(160deg, transparent 68%, #b8d4b8 68% 70%, transparent 70%),
-        linear-gradient(20deg, transparent 70%, #b8d4b8 70% 72%, transparent 72%),
-        /* 主渐变：天空→草地→土壤 */
+        linear-gradient(125deg, transparent 60%, #98B89A 60% 63%, transparent 63%),
+        linear-gradient(55deg, transparent 62%, #98B89A 62% 65%, transparent 65%),
         linear-gradient(to bottom,
             var(--sky-top) 0%,
             var(--sky-mid) 22%,
@@ -67,10 +59,153 @@ html, body {
             var(--ground-2) 75%,
             #6B4830 90%,
             #4A2F1E 100%);
+    transition: background 1.2s ease;
+}
+
+/* 天气：阴天 */
+.garden-shell.weather-cloudy {
+    --sky-top: #909090;
+    --sky-mid: #B8B8B8;
+}
+/* 天气：多云（云多但有阳光） */
+.garden-shell.weather-partly-cloudy {
+    --sky-top: #6CAED0;
+    --sky-mid: #98C8DC;
+}
+/* 天气：雨天 */
+.garden-shell.weather-rainy {
+    --sky-top: #4a5a6a;
+    --sky-mid: #6a7a8a;
+    --ground-1: #8a6f4d;
+    --ground-2: #6e5a3a;
+}
+/* 天气：雷雨（最暗） */
+.garden-shell.weather-storm {
+    --sky-top: #2a2a3a;
+    --sky-mid: #3a3a4a;
+    --ground-1: #5a4f3d;
+    --ground-2: #4a3f2d;
+}
+/* 天气：夕阳（橙红） */
+.garden-shell.weather-sunset {
+    --sky-top: #E07B4A;
+    --sky-mid: #F0A878;
+    --ground-1: #B0755D;
+    --ground-2: #8a5040;
+}
+/* 天气：夜晚（深蓝） */
+.garden-shell.weather-night {
+    --sky-top: #1a2540;
+    --sky-mid: #2a3a55;
+    --ground-1: #3a3540;
+    --ground-2: #2a2530;
 }
 
 /* ============================================================
-   装饰背景层（绝对定位，z:1）
+   天气效果层（绝对定位，全屏）
+   ============================================================ */
+
+.garden-weather {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    overflow: hidden;
+    display: none;
+}
+/* 只在特定天气下显示对应效果 */
+.garden-shell.weather-rainy .rain-layer,
+.garden-shell.weather-storm .rain-layer,
+.garden-shell.weather-night .stars-layer,
+.garden-shell.weather-sunset .sunset-layer,
+.garden-shell.weather-storm .lightning-layer,
+.garden-shell.weather-cloudy .cloud-overlay,
+.garden-shell.weather-partly-cloudy .cloud-overlay {
+    display: block;
+}
+
+/* 雨滴（CSS-only，用 linear-gradient + 动画） */
+.rain-layer {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(to bottom,
+            transparent 0px,
+            transparent 10px,
+            rgba(180, 210, 240, 0.7) 10px,
+            rgba(180, 210, 240, 0.7) 13px);
+    background-size: 6px 100%;
+    animation: rain-fall 0.6s linear infinite;
+    opacity: 0.7;
+}
+@keyframes rain-fall {
+    from { background-position: 0 -100%; }
+    to   { background-position: 0 100%; }
+}
+
+/* 闪电 */
+.lightning-layer {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    animation: lightning 5s ease-out infinite;
+}
+@keyframes lightning {
+    0%, 92%, 100% { opacity: 0; }
+    93%           { opacity: 0.9; }
+    94%           { opacity: 0; }
+    95%           { opacity: 0.7; }
+    96%           { opacity: 0; }
+}
+
+/* 星星（夜晚） */
+.stars-layer {
+    display: none;
+    position: absolute;
+    inset: 0 0 60% 0;
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 80px 60px, #fff, transparent),
+        radial-gradient(2px 2px at 160px 40px, #ffe890, transparent),
+        radial-gradient(1.5px 1.5px at 240px 80px, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 320px 50px, #fff, transparent),
+        radial-gradient(2px 2px at 400px 70px, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 480px 30px, #ffe890, transparent),
+        radial-gradient(2px 2px at 560px 60px, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 640px 80px, #fff, transparent),
+        radial-gradient(2px 2px at 720px 40px, #fff, transparent);
+    animation: twinkle 3s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+    from { opacity: 0.6; }
+    to   { opacity: 1; }
+}
+
+/* 夕阳层（橙红渐变 + 半透明落日） */
+.sunset-layer {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 75% 70%, rgba(255, 200, 100, 0.4) 0%, transparent 30%);
+}
+
+/* 多云遮罩（云朵更密） */
+.cloud-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60px 22px at 15% 18%, rgba(180, 180, 180, 0.7), transparent 70%),
+        radial-gradient(ellipse 50px 18px at 60% 22%, rgba(160, 160, 160, 0.7), transparent 70%),
+        radial-gradient(ellipse 70px 24px at 85% 16%, rgba(180, 180, 180, 0.7), transparent 70%),
+        radial-gradient(ellipse 40px 14px at 35% 28%, rgba(160, 160, 160, 0.5), transparent 70%);
+}
+
+/* ============================================================
+   装饰背景层
    ============================================================ */
 
 .garden-decor {
@@ -81,7 +216,7 @@ html, body {
     overflow: hidden;
 }
 
-/* 太阳：左中，大，带 8 根光芒（2D 风格圆+线） */
+/* 太阳（晴天显示，夜晚变成月亮） */
 .decor-sun {
     position: absolute;
     top: 130px;
@@ -93,6 +228,7 @@ html, body {
     border: 3px solid #b07010;
     box-shadow: 0 0 36px rgba(255, 220, 100, 0.7);
     animation: sun-glow 4s ease-in-out infinite;
+    transition: all 1s ease;
 }
 .decor-sun::before {
     content: '';
@@ -123,7 +259,51 @@ html, body {
     to   { transform: rotate(360deg); }
 }
 
-/* 云朵（2D 风格椭圆+小圆） */
+/* 夜晚：太阳变月亮（同一元素不同样式） */
+.garden-shell.weather-night .decor-sun {
+    background: radial-gradient(circle at 35% 35%, #f0f0f0, #c0c0c0 60%, #8a8a8a 100%);
+    border-color: #6a6a6a;
+    box-shadow: 0 0 28px rgba(200, 200, 220, 0.5);
+    animation: moon-glow 6s ease-in-out infinite;
+}
+.garden-shell.weather-night .decor-sun::before {
+    background: radial-gradient(circle at 30% 30%, #888 4px, transparent 5px),
+                radial-gradient(circle at 65% 60%, #888 5px, transparent 6px),
+                radial-gradient(circle at 50% 40%, #888 3px, transparent 4px);
+    animation: none;
+    opacity: 1;
+}
+@keyframes moon-glow {
+    0%, 100% { box-shadow: 0 0 28px rgba(200, 200, 220, 0.5); }
+    50%      { box-shadow: 0 0 36px rgba(200, 200, 220, 0.7); }
+}
+
+/* 雨天：太阳变乌云 */
+.garden-shell.weather-rainy .decor-sun,
+.garden-shell.weather-storm .decor-sun {
+    background: radial-gradient(circle at 35% 35%, #5a5a5a, #3a3a3a 60%, #2a2a2a 100%);
+    border-color: #1a1a1a;
+    box-shadow: none;
+    animation: none;
+    opacity: 0.7;
+}
+.garden-shell.weather-rainy .decor-sun::before,
+.garden-shell.weather-storm .decor-sun::before {
+    display: none;
+}
+
+/* 夕阳：太阳变大变橙 */
+.garden-shell.weather-sunset .decor-sun {
+    width: 76px;
+    height: 76px;
+    background: radial-gradient(circle at 50% 50%, #ffeb60, #ff9933 50%, #d44a1a 100%);
+    border-color: #a03010;
+    box-shadow: 0 0 50px rgba(255, 120, 50, 0.7);
+    top: 200px;
+    left: 25%;
+}
+
+/* 云朵 */
 .decor-cloud {
     position: absolute;
     background: #fff;
@@ -154,20 +334,21 @@ html, body {
     border: inherit;
     border-radius: 50%;
 }
-@keyframes cloud-drift-1 {
-    from { transform: translateX(0); }
-    to   { transform: translateX(60vw); }
-}
-@keyframes cloud-drift-2 {
-    from { transform: translateX(0); }
-    to   { transform: translateX(40vw); }
-}
-@keyframes cloud-drift-3 {
-    from { transform: translateX(0); }
-    to   { transform: translateX(50vw); }
+@keyframes cloud-drift-1 { from { transform: translateX(0); } to { transform: translateX(60vw); } }
+@keyframes cloud-drift-2 { from { transform: translateX(0); } to { transform: translateX(40vw); } }
+@keyframes cloud-drift-3 { from { transform: translateX(0); } to { transform: translateX(50vw); } }
+
+/* 阴天/雨/夜：云朵变深色 */
+.garden-shell.weather-cloudy .decor-cloud,
+.garden-shell.weather-rainy .decor-cloud,
+.garden-shell.weather-storm .decor-cloud,
+.garden-shell.weather-night .decor-cloud {
+    background: #b0b0b0;
+    border-color: #707070;
+    opacity: 0.7;
 }
 
-/* 小木屋（2D 风格方+三角） */
+/* 小木屋 */
 .decor-house {
     position: absolute;
     top: 110px;
@@ -184,7 +365,7 @@ html, body {
     width: 78px;
     height: 38px;
     background: #d4a574;
-    border: 3px solid var(--ground-dark);
+    border: 3px solid var(--key-edge);
     border-radius: 4px 4px 0 0;
 }
 .decor-house::after {
@@ -197,8 +378,7 @@ html, body {
     border-left: 47px solid transparent;
     border-right: 47px solid transparent;
     border-bottom: 24px solid #c75c3a;
-    border-bottom-style: solid;
-    filter: drop-shadow(0 -2px 0 var(--ground-dark));
+    filter: drop-shadow(0 -2px 0 var(--key-edge));
 }
 .decor-house-window {
     position: absolute;
@@ -207,9 +387,15 @@ html, body {
     width: 22px;
     height: 18px;
     background: #b8e0ff;
-    border: 3px solid var(--ground-dark);
+    border: 3px solid var(--key-edge);
     border-radius: 2px;
     box-shadow: inset 0 0 0 1px #fff;
+    transition: all 0.5s;
+}
+/* 夜晚：窗户亮灯 */
+.garden-shell.weather-night .decor-house-window {
+    background: #ffe890;
+    box-shadow: inset 0 0 0 1px #fff, 0 0 8px rgba(255, 232, 144, 0.6);
 }
 .decor-house-door {
     position: absolute;
@@ -218,7 +404,7 @@ html, body {
     width: 22px;
     height: 30px;
     background: #8b5e3c;
-    border: 3px solid var(--ground-dark);
+    border: 3px solid var(--key-edge);
     border-radius: 8px 8px 0 0;
 }
 .decor-house-door::after {
@@ -229,11 +415,11 @@ html, body {
     width: 4px;
     height: 4px;
     background: #ffd700;
-    border: 1px solid var(--ground-dark);
+    border: 1px solid var(--key-edge);
     border-radius: 50%;
 }
 
-/* 稻草人（2D 大型，明显的杆+十字双臂+帽子） */
+/* 稻草人 */
 .decor-scarecrow {
     position: absolute;
     top: 140px;
@@ -250,7 +436,7 @@ html, body {
     width: 24px;
     height: 24px;
     background: #f0c060;
-    border: 3px solid var(--ground-dark);
+    border: 3px solid var(--key-edge);
     border-radius: 50%;
 }
 .decor-scarecrow::after {
@@ -261,11 +447,9 @@ html, body {
     width: 6px;
     height: 80px;
     background: #5e3a1e;
-    border: 2px solid var(--ground-dark);
+    border: 2px solid var(--key-edge);
     border-radius: 3px;
-    box-shadow:
-        -22px 16px 0 -2px #5e3a1e,
-        22px 16px 0 -2px #5e3a1e;
+    box-shadow: -22px 16px 0 -2px #5e3a1e, 22px 16px 0 -2px #5e3a1e;
 }
 .decor-scarecrow-hat {
     position: absolute;
@@ -274,7 +458,7 @@ html, body {
     width: 28px;
     height: 14px;
     background: #5e3a1e;
-    border: 3px solid var(--ground-dark);
+    border: 3px solid var(--key-edge);
     border-radius: 50% 50% 0 0;
 }
 .decor-scarecrow-hat::after {
@@ -285,12 +469,12 @@ html, body {
     width: 18px;
     height: 4px;
     background: #5e3a1e;
-    border: 3px solid var(--ground-dark);
+    border: 3px solid var(--key-edge);
     border-top: none;
     border-radius: 0 0 4px 4px;
 }
 
-/* 邮箱（2D 风格圆顶方块+旗） */
+/* 邮箱 */
 .decor-mailbox {
     position: absolute;
     top: 120px;
@@ -307,7 +491,7 @@ html, body {
     width: 40px;
     height: 38px;
     background: #e85d5d;
-    border: 3px solid var(--ground-dark);
+    border: 3px solid var(--key-edge);
     border-radius: 6px 6px 4px 4px;
 }
 .decor-mailbox::after {
@@ -318,7 +502,7 @@ html, body {
     width: 50px;
     height: 24px;
     background: #e85d5d;
-    border: 3px solid var(--ground-dark);
+    border: 3px solid var(--key-edge);
     border-bottom: none;
     border-radius: 28px 28px 0 0;
 }
@@ -329,7 +513,7 @@ html, body {
     width: 4px;
     height: 22px;
     background: #5e3a1e;
-    border: 2px solid var(--ground-dark);
+    border: 2px solid var(--key-edge);
     border-radius: 2px;
 }
 .decor-mailbox-flag::after {
@@ -340,11 +524,11 @@ html, body {
     width: 12px;
     height: 8px;
     background: #e85d3a;
-    border: 2px solid var(--ground-dark);
+    border: 2px solid var(--key-edge);
     border-radius: 0 3px 3px 0;
 }
 
-/* 远景树（多棵，三角树冠+树干） */
+/* 远景树 */
 .decor-tree {
     position: absolute;
     width: 0;
@@ -352,7 +536,7 @@ html, body {
     border-left: 16px solid transparent;
     border-right: 16px solid transparent;
     border-bottom: 32px solid #4a6a3a;
-    filter: drop-shadow(0 2px 0 var(--ground-dark));
+    filter: drop-shadow(0 2px 0 var(--key-edge));
 }
 .decor-tree::before {
     content: '';
@@ -362,14 +546,20 @@ html, body {
     width: 6px;
     height: 14px;
     background: #5e3a1e;
-    border: 2px solid var(--ground-dark);
+    border: 2px solid var(--key-edge);
 }
 .decor-tree.t1 { top: 180px; left: 3%;  transform: scale(0.9); }
 .decor-tree.t2 { top: 185px; right: 3%; transform: scale(1.1); }
 .decor-tree.t3 { top: 170px; left: 22%; transform: scale(0.7); }
 .decor-tree.t4 { top: 190px; right: 22%; transform: scale(0.85); }
 
-/* 前景栅栏（3D 透视木桩） */
+/* 夜晚：树变深色 */
+.garden-shell.weather-night .decor-tree {
+    border-bottom-color: #1a2a1a;
+    opacity: 0.5;
+}
+
+/* 前景栅栏 */
 .decor-fence {
     position: absolute;
     bottom: 0;
@@ -400,148 +590,7 @@ html, body {
 }
 
 /* ============================================================
-   动物层 — 走动动画（每只独立轨道+速度+方向）
-   ============================================================ */
-
-.garden-animals {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 20;
-    overflow: hidden;
-}
-
-.garden-animal {
-    position: absolute;
-    font-size: 32px;
-    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
-    transition: transform 0.2s;
-    transform-origin: center bottom;
-    will-change: transform;
-}
-
-/* 大象 — 慢速来回（中央可见区域） */
-@keyframes walk-elephant {
-    0%   { left: 38%; top: 38%; transform: scaleX(1); }
-    48%  { left: 70%; top: 42%; transform: scaleX(1); }
-    50%  { left: 70%; top: 42%; transform: scaleX(-1); }
-    98%  { left: 8%;  top: 42%; transform: scaleX(-1); }
-    100% { left: 8%;  top: 42%; transform: scaleX(1); }
-}
-.elephant {
-    top: 38%;
-    left: 38%;
-    font-size: 64px;
-    z-index: 22;
-    animation: walk-elephant 24s linear infinite;
-}
-
-/* 羊 — 左下到右中慢走 */
-@keyframes walk-sheep {
-    0%, 100% { left: 4%;  top: 70%; transform: scaleX(1); }
-    49%     { left: 32%; top: 70%; transform: scaleX(1); }
-    50%     { left: 32%; top: 70%; transform: scaleX(-1); }
-    99%     { left: 4%;  top: 70%; transform: scaleX(-1); }
-}
-.sheep {
-    top: 70%;
-    left: 4%;
-    font-size: 36px;
-    animation: walk-sheep 22s linear infinite;
-}
-
-/* 猪 1 — 右下来回 */
-@keyframes walk-pig-1 {
-    0%, 100% { left: 60%; top: 64%; transform: scaleX(1); }
-    50%      { left: 90%; top: 64%; transform: scaleX(-1); }
-}
-.pig-1 {
-    top: 64%;
-    left: 60%;
-    font-size: 30px;
-    animation: walk-pig-1 16s linear infinite;
-}
-
-/* 猪 2 — 右下来回（不同步） */
-@keyframes walk-pig-2 {
-    0%, 100% { left: 8%;  top: 60%; transform: scaleX(1); }
-    50%      { left: 38%; top: 60%; transform: scaleX(-1); }
-}
-.pig-2 {
-    top: 60%;
-    left: 8%;
-    font-size: 30px;
-    animation: walk-pig-2 18s linear infinite;
-}
-
-/* 兔子 — 中央来回（更频繁） */
-@keyframes walk-rabbit {
-    0%, 100% { left: 36%; top: 78%; transform: scaleX(1); }
-    50%      { left: 64%; top: 78%; transform: scaleX(-1); }
-}
-.rabbit {
-    top: 78%;
-    left: 36%;
-    font-size: 24px;
-    animation: walk-rabbit 10s linear infinite;
-}
-
-/* 熊 — 左下来回（最慢，最大） */
-@keyframes walk-bear {
-    0%, 100% { left: 2%;  top: 80%; transform: scaleX(1); }
-    50%      { left: 28%; top: 80%; transform: scaleX(-1); }
-}
-.bear {
-    top: 80%;
-    left: 2%;
-    font-size: 34px;
-    animation: walk-bear 28s linear infinite;
-}
-
-/* 鸡 — 右下来回（频繁） */
-@keyframes walk-chicken {
-    0%, 100% { left: 70%; top: 82%; transform: scaleX(1); }
-    50%      { left: 92%; top: 82%; transform: scaleX(-1); }
-}
-.chicken {
-    top: 82%;
-    left: 70%;
-    font-size: 26px;
-    animation: walk-chicken 12s linear infinite;
-}
-
-/* 鸟 1 — 天空慢飘（保留 bob 风格但加慢速横向） */
-@keyframes fly-bird-1 {
-    0%   { left: 0%;   top: 24%; transform: scaleX(1); }
-    49%  { left: 80%;  top: 22%; transform: scaleX(1); }
-    50%  { left: 80%;  top: 22%; transform: scaleX(-1); }
-    99%  { left: 0%;   top: 26%; transform: scaleX(-1); }
-    100% { left: 0%;   top: 24%; transform: scaleX(1); }
-}
-.bird-1 {
-    top: 24%;
-    left: 0%;
-    font-size: 20px;
-    animation: fly-bird-1 30s linear infinite;
-}
-
-/* 鸟 2 — 天空不同高度 */
-@keyframes fly-bird-2 {
-    0%   { left: 100%; top: 32%; transform: scaleX(-1); }
-    49%  { left: 20%;  top: 30%; transform: scaleX(-1); }
-    50%  { left: 20%;  top: 30%; transform: scaleX(1); }
-    99%  { left: 100%; top: 34%; transform: scaleX(1); }
-    100% { left: 100%; top: 32%; transform: scaleX(-1); }
-}
-.bird-2 {
-    top: 32%;
-    left: 100%;
-    font-size: 20px;
-    animation: fly-bird-2 36s linear infinite;
-}
-
-/* ============================================================
-   标题栏
+   标题栏 + 状态条 + 横幅
    ============================================================ */
 
 .garden-titlebar {
@@ -550,7 +599,7 @@ html, body {
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: linear-gradient(to bottom, var(--panel-bg), rgba(255, 240, 210, 0.9));
+    background: var(--panel-bg);
     border-bottom: 3px solid var(--panel-edge);
     box-shadow: 0 2px 6px var(--shadow);
     z-index: 10;
@@ -601,10 +650,6 @@ html, body {
     color: #c03030;
 }
 
-/* ============================================================
-   状态条 + 横幅
-   ============================================================ */
-
 .garden-stats-bar {
     grid-area: stats;
     display: flex;
@@ -648,10 +693,11 @@ html, body {
     z-index: 9;
     text-align: center;
     font-style: italic;
+    transition: all 0.5s;
 }
 
 /* ============================================================
-   键盘主区
+   键盘主区 + 按键
    ============================================================ */
 
 .garden-main {
@@ -662,7 +708,7 @@ html, body {
     overflow-x: hidden;
     padding: 8px 8px 70px;
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;     /* 贴底 */
     justify-content: center;
 }
 
@@ -674,10 +720,6 @@ html, body {
     width: 100%;
     padding: 0 4px;
 }
-
-/* ============================================================
-   按键 — flex column 底部对齐
-   ============================================================ */
 
 .garden-key {
     position: relative;
@@ -694,7 +736,7 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;  /* 全部贴底 */
-    padding: 16px 2px 4px;       /* 顶部留空给字母 */
+    padding: 18px 2px 2px;       /* 顶部留空给字母，底部贴边 */
     transition: transform 0.15s, box-shadow 0.15s;
 }
 
@@ -707,8 +749,8 @@ html, body {
 
 .garden-key.type-water {
     background:
-        linear-gradient(to right, transparent 46%, var(--water-edge) 46% 50%, transparent 50%),
-        linear-gradient(to bottom, transparent 46%, var(--water-edge) 46% 50%, transparent 50%),
+        linear-gradient(to right, transparent 46%, #3a6a8c 46% 50%, transparent 50%),
+        linear-gradient(to bottom, transparent 46%, #3a6a8c 46% 50%, transparent 50%),
         linear-gradient(135deg, #A0D0E8, #5b8db8);
 }
 
@@ -742,19 +784,24 @@ html, body {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
+/* 植物图像：撑满按键下部，根部贴底 */
 .garden-key-plant {
+    flex: 1;
+    width: 100%;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     z-index: 1;
-    margin-bottom: 2px;
+    padding: 0;
+    margin: 0;
 }
 .garden-key-plant svg {
-    width: 100%;
-    height: auto;
-    max-width: 56px;
-    max-height: 56px;
+    width: auto;
+    height: 100%;
+    max-width: 60px;
+    max-height: 60px;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+    display: block;
 }
 
 .garden-key-decor {
@@ -768,6 +815,7 @@ html, body {
 .garden-key-decor.top-right { top: 22px; right: 3px; transform: rotate(20deg); }
 .garden-key-decor.bot-left  { bottom: 22px; left: 3px;  transform: rotate(10deg); }
 
+/* 收成标签：贴按键最底 */
 .garden-key-harvest {
     position: absolute;
     bottom: 3px;
@@ -789,7 +837,6 @@ html, body {
 }
 .garden-key-harvest-icon { font-size: 8px; }
 
-/* 阶段底色微调 */
 .garden-key.stage-0 { filter: brightness(0.95) saturate(0.7); }
 .garden-key.stage-1 { filter: brightness(1.0)  saturate(0.9); }
 .garden-key.stage-2 { filter: brightness(1.05) saturate(1.0); }
@@ -815,10 +862,7 @@ html, body {
     animation: slide-in 0.25s ease-out;
 }
 .garden-side-panel[hidden] { display: none; }
-@keyframes slide-in {
-    from { transform: translateX(100%); }
-    to   { transform: translateX(0); }
-}
+@keyframes slide-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
 .garden-side-header {
     position: sticky;
@@ -833,28 +877,14 @@ html, body {
 }
 .garden-side-header h3 { font-size: 14px; color: var(--text-dark); font-weight: 700; }
 
-.garden-side-section {
-    padding: 10px 14px;
-    border-bottom: 2px solid var(--panel-edge);
-}
-.garden-section-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-mid);
-    margin-bottom: 8px;
-    letter-spacing: 0.5px;
-}
+.garden-side-section { padding: 10px 14px; border-bottom: 2px solid var(--panel-edge); }
+.garden-section-title { font-size: 11px; font-weight: 600; color: var(--text-mid); margin-bottom: 8px; letter-spacing: 0.5px; }
 
 .garden-ranking { display: flex; flex-direction: column; gap: 4px; }
 .garden-rank-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 8px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 2px solid var(--panel-edge);
-    border-radius: 6px;
-    font-size: 11px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 8px; background: rgba(255, 255, 255, 0.7);
+    border: 2px solid var(--panel-edge); border-radius: 6px; font-size: 11px;
 }
 .garden-rank-main { flex: 1; }
 .garden-rank-title { font-weight: 600; color: var(--text-dark); }
@@ -863,28 +893,17 @@ html, body {
 
 .garden-feed { display: flex; flex-direction: column; gap: 4px; }
 .garden-feed-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 8px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 2px solid var(--panel-edge);
-    border-radius: 6px;
-    font-size: 11px;
+    display: flex; justify-content: space-between;
+    padding: 5px 8px; background: rgba(255, 255, 255, 0.7);
+    border: 2px solid var(--panel-edge); border-radius: 6px; font-size: 11px;
 }
 .garden-feed-main { flex: 1; }
 .garden-feed-title { font-weight: 600; color: var(--text-dark); }
 .garden-feed-sub   { color: var(--text-light); font-size: 10px; }
 .garden-feed-value { color: var(--text-light); margin-left: 8px; }
 
-.garden-empty {
-    padding: 20px;
-    text-align: center;
-    color: var(--text-light);
-    font-size: 11px;
-    font-style: italic;
-}
+.garden-empty { padding: 20px; text-align: center; color: var(--text-light); font-size: 11px; font-style: italic; }
 
-/* 滚动条 */
 .garden-main::-webkit-scrollbar,
 .garden-side-panel::-webkit-scrollbar { width: 6px; }
 .garden-main::-webkit-scrollbar-track,

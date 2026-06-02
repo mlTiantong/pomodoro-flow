@@ -257,8 +257,37 @@ const KeyboardGarden = (() => {
     let bannerEl, boardEl, rankingEl, feedEl, sidePanelEl;
     let feed = [];
 
+    /**
+     * 天气系统：按当前时间 + 随机决定天气
+     * 夜晚（21-05）/ 夕阳（17-20）按时段固定
+     * 白天（8-17）按概率分配：sunny / partly-cloudy / cloudy / rainy / storm
+     */
+    function applyAutoWeather() {
+        const shell = document.querySelector('.garden-shell');
+        if (!shell) return;
+        const h = new Date().getHours();
+        let weather;
+        if (h >= 21 || h < 5)  weather = 'night';
+        else if (h >= 17 && h < 21) weather = 'sunset';
+        else if (h >= 5  && h < 8)  weather = 'partly-cloudy';
+        else {
+            // 8-17 随机（晴天为主）
+            const r = Math.random();
+            if      (r < 0.05) weather = 'storm';
+            else if (r < 0.18) weather = 'rainy';
+            else if (r < 0.40) weather = 'cloudy';
+            else if (r < 0.65) weather = 'partly-cloudy';
+            else               weather = 'sunny';
+        }
+        shell.classList.add('weather-' + weather);
+    }
+
     function init() {
         FocusActivity.init();
+
+        // 根据时间自动决定天气
+        applyAutoWeather();
+
         coinsEl       = document.getElementById('gardenCoins');
         harvestsEl    = document.getElementById('gardenHarvests');
         totalKeysEl   = document.getElementById('gardenTotalKeys');
