@@ -9,28 +9,50 @@
 </head>
 <body>
     <div class="garden-shell">
-        <!-- 装饰背景层（绝对定位） -->
+        <!-- 装饰背景层（绝对定位，z:1） -->
         <div class="garden-decor">
             <div class="decor-sun"></div>
             <div class="decor-cloud c1"></div>
             <div class="decor-cloud c2"></div>
             <div class="decor-cloud c3"></div>
-            <div class="decor-house"></div>
-            <div class="decor-scarecrow"></div>
-            <div class="decor-mailbox"></div>
+
+            <!-- 远景树（多个） -->
+            <div class="decor-tree t1"></div>
+            <div class="decor-tree t2"></div>
+            <div class="decor-tree t3"></div>
+            <div class="decor-tree t4"></div>
+
+            <!-- 小木屋（含窗户、门） -->
+            <div class="decor-house">
+                <div class="decor-house-window"></div>
+                <div class="decor-house-door"></div>
+            </div>
+
+            <!-- 稻草人（含帽子） -->
+            <div class="decor-scarecrow">
+                <div class="decor-scarecrow-hat"></div>
+            </div>
+
+            <!-- 邮箱（含旗） -->
+            <div class="decor-mailbox">
+                <div class="decor-mailbox-flag"></div>
+            </div>
+
+            <!-- 前景栅栏（z:50） -->
             <div class="decor-fence"></div>
         </div>
 
-        <!-- 动物层（散布在主区，CSS 绝对定位） -->
+        <!-- 动物层（z:20） -->
         <div class="garden-animals">
-            <div class="garden-animal sheep" data-name="sheep">🐑</div>
-            <div class="garden-animal pig-1" data-name="pig">🐖</div>
-            <div class="garden-animal pig-2" data-name="pig">🐖</div>
-            <div class="garden-animal rabbit" data-name="rabbit">🐰</div>
             <div class="garden-animal elephant" data-name="elephant">🐘</div>
-            <div class="garden-animal bird-1" data-name="bird">🐦</div>
-            <div class="garden-animal bird-2" data-name="bird">🐤</div>
-            <div class="garden-animal bear" data-name="bear">🐻</div>
+            <div class="garden-animal sheep"     data-name="sheep">🐑</div>
+            <div class="garden-animal pig-1"     data-name="pig">🐖</div>
+            <div class="garden-animal pig-2"     data-name="pig">🐖</div>
+            <div class="garden-animal rabbit"    data-name="rabbit">🐰</div>
+            <div class="garden-animal bear"      data-name="bear">🐻</div>
+            <div class="garden-animal chicken"   data-name="chicken">🐔</div>
+            <div class="garden-animal bird-1"    data-name="bird">🐦</div>
+            <div class="garden-animal bird-2"    data-name="bird">🐤</div>
         </div>
 
         <!-- 标题栏 -->
@@ -43,13 +65,13 @@
                 </div>
             </div>
             <div class="garden-title-actions">
-                <button class="garden-icon-btn" id="gardenBtnStats" title="查看统计">📊</button>
+                <button class="garden-icon-btn" id="gardenBtnStats"  title="查看统计">📊</button>
                 <button class="garden-icon-btn" id="gardenBtnRefresh" title="刷新">↻</button>
                 <button class="garden-icon-btn danger" id="gardenBtnClose" title="关闭">✕</button>
             </div>
         </header>
 
-        <!-- 顶部状态条（金币/总收获/总敲击/等级） -->
+        <!-- 顶部状态条 -->
         <section class="garden-stats-bar" id="gardenStatsBar">
             <div class="garden-stat hero">
                 <span class="garden-stat-icon">🪙</span>
@@ -78,7 +100,7 @@
             </div>
         </section>
 
-        <!-- 横幅消息（动态文案） -->
+        <!-- 横幅 -->
         <div class="garden-banner" id="gardenBanner">按下任意键，让苗开始长。</div>
 
         <!-- 主键盘区 -->
@@ -86,7 +108,7 @@
             <div class="garden-board" id="gardenBoard"></div>
         </main>
 
-        <!-- 浮层：统计侧边栏（默认隐藏，点击"统计"展开） -->
+        <!-- 浮层：详细统计（默认隐藏） -->
         <aside class="garden-side-panel" id="gardenSidePanel" hidden>
             <header class="garden-side-header">
                 <h3>📊 详细统计</h3>
