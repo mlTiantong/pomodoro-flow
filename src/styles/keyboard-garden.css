@@ -603,6 +603,11 @@ html, body {
     border-bottom: 3px solid var(--panel-edge);
     box-shadow: 0 2px 6px var(--shadow);
     z-index: 10;
+    -webkit-app-region: drag;       /* 标题栏可拖动（frame: false） */
+}
+
+.garden-title-actions {
+    -webkit-app-region: no-drag;     /* 按钮区不可拖 */
 }
 
 .garden-brand { display: flex; align-items: center; gap: 10px; }
@@ -638,6 +643,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
+    -webkit-app-region: no-drag;       /* 防御：按钮不可拖 */
 }
 .garden-icon-btn:hover {
     background: rgba(255, 255, 255, 0.6);
