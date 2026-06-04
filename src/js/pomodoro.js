@@ -1,8 +1,11 @@
 /**
- * pomodoro.js — 番茄钟模块
+ * pomodoro.js — 番茄钟模块 + 自由计时（正向计时）
  *
- * 实现 25 分钟专注 / 5 分钟休息的番茄钟计时器。
- * 包含精确倒计时、进度条更新、自动切换模式。
+ * 两种模式：
+ *   - 番茄钟：25/5 分钟倒计时，到时自动切换专注/休息
+ *   - 自由计时：从 0 累加，可暂停/继续/重置/保存记录（写到 tomato_clock_free_focus）
+ *
+ * UI 共享同一显示区，由用户通过模式切换按钮选择。
  */
 
 const Pomodoro = (() => {
@@ -23,7 +26,8 @@ const Pomodoro = (() => {
     /** 模式 */
     const Mode = {
         FOCUS: 'focus',
-        BREAK: 'break'
+        BREAK: 'break',
+        FREE: 'free'           // 自由计时（正向累加）
     };
 
     // DOM 引用
@@ -34,17 +38,24 @@ const Pomodoro = (() => {
     let btnStart = null;
     let btnPause = null;
     let btnReset = null;
+    let btnSaveFree = null;
+    let modeSwitchFocus = null;
+    let modeSwitchFree = null;
     let todayPomodorosEl = null;
     let todayFocusTimeEl = null;
 
     // 计时器状态
     let state = State.IDLE;
     let mode = Mode.FOCUS;
-    let timeRemaining = 0;       // 剩余秒数
-    let totalTime = 0;          // 总秒数
+    let timeRemaining = 0;       // 番茄钟：剩余秒数；自由：已过秒数
+    let totalTime = 0;          // 总秒数（番茄钟用）
     let timerInterval = null;
     let currentTaskId = null;
     let currentSessionId = null;
+
+    // 自由计时专用
+    let freeStartTime = 0;       // 当前 session 开始时间戳（毫秒）
+    let freeElapsedBefore = 0;   // 暂停前累积时长（秒）
 
     // 统计缓存
     let todayPomodoroCount = 0;
@@ -69,6 +80,9 @@ const Pomodoro = (() => {
         btnStart = document.getElementById('btnStart');
         btnPause = document.getElementById('btnPause');
         btnReset = document.getElementById('btnReset');
+        btnSaveFree = document.getElementById('btnSaveFree');
+        modeSwitchFocus = document.getElementById('modeSwitchFocus');
+        modeSwitchFree = document.getElementById('modeSwitchFree');
         todayPomodorosEl = document.getElementById('todayPomodoros');
         todayFocusTimeEl = document.getElementById('todayFocusTime');
         onComplete = options.onComplete || null;
@@ -77,14 +91,25 @@ const Pomodoro = (() => {
         const stats = Storage.loadTodayStats();
         todayPomodoroCount = stats.totalPomodoros || 0;
         todayFocusMinutes = stats.totalFocusMinutes || 0;
+        // 自由计时累计（不维护缓存，直接每次重读，UI 量小）
 
         // 初始值
         resetToMode(Mode.FOCUS);
+        updateStatsDisplay();
 
         // 绑定事件
         btnStart.addEventListener('click', start);
         btnPause.addEventListener('click', pause);
         btnReset.addEventListener('click', reset);
+        if (btnSaveFree) {
+            btnSaveFree.addEventListener('click', saveFreeSession);
+        }
+        if (modeSwitchFocus) {
+            modeSwitchFocus.addEventListener('click', () => setMode(Mode.FOCUS));
+        }
+        if (modeSwitchFree) {
+            modeSwitchFree.addEventListener('click', () => setMode(Mode.FREE));
+        }
 
         // 任务选择事件
         const taskSelect = document.getElementById('taskSelect');
@@ -103,13 +128,35 @@ const Pomodoro = (() => {
     // ============================================================
 
     /**
-     * 开始计时
+     * 开始计时（番茄钟：开始新一轮/继续；自由计时：累加开始）
      */
     function start() {
         if (state === State.RUNNING) return;
 
+        if (mode === Mode.FREE) {
+            // 自由计时：timeRemaining 单调递增
+            freeStartTime = Date.now();
+            if (window.FocusActivity) {
+                currentSessionId = DomUtils.generateId();
+                FocusActivity.startSession(currentSessionId);
+            }
+            state = State.RUNNING;
+            updateUI();
+
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                timeRemaining = freeElapsedBefore + Math.floor((now - freeStartTime) / 1000);
+                if (window.FocusActivity) FocusActivity.tickActiveSecond();
+                updateUI();
+            }, 1000);
+
+            btnStart.disabled = true;
+            btnPause.disabled = false;
+            return;
+        }
+
+        // 番茄钟原逻辑
         if (state === State.IDLE || state === State.COMPLETED) {
-            // 新的一轮
             if (mode === Mode.FOCUS) {
                 const s = Storage.loadSettings();
                 timeRemaining = s.focusDuration * 60;
@@ -136,7 +183,6 @@ const Pomodoro = (() => {
             }
 
             if (timeRemaining <= 0) {
-                // 计时结束
                 clearInterval(timerInterval);
                 timerInterval = null;
                 state = State.COMPLETED;
@@ -159,7 +205,11 @@ const Pomodoro = (() => {
 
         clearInterval(timerInterval);
         timerInterval = null;
-        if (mode === Mode.FOCUS && window.FocusActivity) {
+        if (mode === Mode.FREE) {
+            // 自由计时：累加当前段时长到 freeElapsedBefore
+            freeElapsedBefore += Math.floor((Date.now() - freeStartTime) / 1000);
+            if (window.FocusActivity) FocusActivity.pauseSession();
+        } else if (mode === Mode.FOCUS && window.FocusActivity) {
             FocusActivity.pauseSession();
         }
         state = State.PAUSED;
@@ -179,7 +229,12 @@ const Pomodoro = (() => {
     function reset() {
         clearInterval(timerInterval);
         timerInterval = null;
+        if (mode === Mode.FREE) {
+            freeElapsedBefore = 0;
+        }
         if (mode === Mode.FOCUS && window.FocusActivity) {
+            FocusActivity.stopSession();
+        } else if (mode === Mode.FREE && window.FocusActivity) {
             FocusActivity.stopSession();
         }
         state = State.IDLE;
@@ -192,6 +247,71 @@ const Pomodoro = (() => {
             开始
         `;
         btnPause.disabled = true;
+    }
+
+    /**
+     * 切换模式（番茄钟 ↔ 自由计时）
+     * 跑着时拒绝切换
+     */
+    function setMode(newMode) {
+        if (state === State.RUNNING) {
+            if (window.FocusActivity) FocusActivity.notify?.('请先暂停或重置当前计时');
+            return;
+        }
+        // 重置当前状态
+        clearInterval(timerInterval);
+        timerInterval = null;
+        if (window.FocusActivity && mode === Mode.FOCUS) FocusActivity.stopSession();
+        mode = newMode;
+        state = State.IDLE;
+        freeElapsedBefore = 0;
+        resetToMode(mode);
+    }
+
+    /**
+     * 自由计时：保存当前会话到 storage
+     * 写 tomato_clock_free_focus + 更新今日统计 freeFocusMinutes
+     * @returns {boolean} 是否有可保存内容
+     */
+    function saveFreeSession() {
+        if (mode !== Mode.FREE) return false;
+        // 暂停（如果在跑着）
+        if (state === State.RUNNING) {
+            pause();
+        }
+        const totalSeconds = freeElapsedBefore + (state === State.RUNNING
+            ? Math.floor((Date.now() - freeStartTime) / 1000)
+            : 0);
+        // 至少 1 秒才保存
+        if (totalSeconds < 1) {
+            if (window.FocusActivity) FocusActivity.notify?.('时长太短，未保存');
+            return false;
+        }
+
+        const now = new Date();
+        const startMs = now.getTime() - totalSeconds * 1000;
+        Storage.addFreeFocusSession({
+            startTime: new Date(startMs).toISOString(),
+            endTime: now.toISOString(),
+            durationSeconds: totalSeconds
+        });
+        // 更新今日统计
+        const addedMinutes = Math.round(totalSeconds / 60);
+        Storage.updateTodayStats(s => {
+            s.freeFocusMinutes = (s.freeFocusMinutes || 0) + addedMinutes;
+            return s;
+        });
+        // 同步本地统计缓存
+        todayFocusMinutes += addedMinutes;
+        updateStatsDisplay();
+
+        // 重置自由计时
+        freeElapsedBefore = 0;
+        state = State.IDLE;
+        timeRemaining = 0;
+        updateUI();
+
+        return true;
     }
 
     /**
@@ -342,15 +462,24 @@ const Pomodoro = (() => {
         if (mode === Mode.FOCUS) {
             const sr = Storage.loadSettings();
             timeRemaining = sr.focusDuration * 60;
+            totalTime = timeRemaining;
             modeEl.textContent = '🎯 专注时间';
             modeEl.className = 'pomodoro-mode';
             timerEl.style.color = '';
-        } else {
+        } else if (mode === Mode.BREAK) {
             const sr2 = Storage.loadSettings();
             timeRemaining = sr2.breakDuration * 60;
+            totalTime = timeRemaining;
             modeEl.textContent = '☕ 休息时间';
             modeEl.className = 'pomodoro-mode break-mode';
             timerEl.style.color = 'var(--break-color)';
+        } else if (mode === Mode.FREE) {
+            timeRemaining = 0;
+            totalTime = 0;
+            freeElapsedBefore = 0;
+            modeEl.textContent = '⏱️ 自由计时';
+            modeEl.className = 'pomodoro-mode free-mode';
+            timerEl.style.color = '';
         }
 
         totalTime = timeRemaining;
@@ -365,25 +494,49 @@ const Pomodoro = (() => {
      * 更新所有 UI 元素
      */
     function updateUI() {
-        // 更新时间显示
-        const mins = Math.floor(timeRemaining / 60);
-        const secs = timeRemaining % 60;
-        timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-        // 更新进度
-        const progress = totalTime > 0 ? (totalTime - timeRemaining) / totalTime : 0;
-        const circumference = 2 * Math.PI * 80; // r=80
-        const offset = circumference * (1 - progress);
-        progressRing.style.strokeDashoffset = offset;
-
-        // 进度百分比
-        progressText.textContent = `${Math.round(progress * 100)}%`;
-
-        // 进度条颜色
-        if (mode === Mode.BREAK) {
-            progressRing.classList.add('break-progress');
-        } else {
+        if (mode === Mode.FREE) {
+            // 自由计时：显示 时:分:秒（无进度环）
+            const totalSec = timeRemaining;
+            const h = Math.floor(totalSec / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            const s = totalSec % 60;
+            timerEl.textContent = h > 0
+                ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+                : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            // 进度环停在 0（不画进度）
+            const circumference = 2 * Math.PI * 80;
+            progressRing.style.strokeDashoffset = circumference;
+            progressText.textContent = state === State.RUNNING ? '⏱️' : (state === State.PAUSED ? '⏸' : '·');
             progressRing.classList.remove('break-progress');
+        } else {
+            // 番茄钟：显示 分:秒（倒计时）+ 进度环
+            const mins = Math.floor(timeRemaining / 60);
+            const secs = timeRemaining % 60;
+            timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+            const progress = totalTime > 0 ? (totalTime - timeRemaining) / totalTime : 0;
+            const circumference = 2 * Math.PI * 80;
+            const offset = circumference * (1 - progress);
+            progressRing.style.strokeDashoffset = offset;
+            progressText.textContent = `${Math.round(progress * 100)}%`;
+
+            if (mode === Mode.BREAK) {
+                progressRing.classList.add('break-progress');
+            } else {
+                progressRing.classList.remove('break-progress');
+            }
+        }
+
+        // 同步模式切换按钮高亮
+        if (modeSwitchFocus) {
+            modeSwitchFocus.classList.toggle('active', mode !== Mode.FREE);
+        }
+        if (modeSwitchFree) {
+            modeSwitchFree.classList.toggle('active', mode === Mode.FREE);
+        }
+        // 同步"保存记录"按钮可见性（仅 FREE 模式显示）
+        if (btnSaveFree) {
+            btnSaveFree.hidden = mode !== Mode.FREE;
         }
     }
 
@@ -396,6 +549,13 @@ const Pomodoro = (() => {
         }
         if (todayFocusTimeEl) {
             todayFocusTimeEl.textContent = `专注: ${todayFocusMinutes}m`;
+        }
+        // 自由计时今日累计
+        const todayFreeEl = document.getElementById('todayFreeFocus');
+        if (todayFreeEl) {
+            const stats = Storage.loadTodayStats();
+            const freeMin = Math.round(Number(stats.freeFocusMinutes) || 0);
+            todayFreeEl.textContent = `自由: ${freeMin}m`;
         }
     }
 

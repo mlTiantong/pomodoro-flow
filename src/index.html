@@ -72,6 +72,16 @@
                         </svg>
                     </button>
                 </div>
+
+                <!-- 模式切换：番茄钟 / 自由计时 -->
+                <div class="pomo-mode-switch">
+                    <button class="pomo-mode-switch-btn active" id="modeSwitchFocus" data-mode="focus">
+                        🍅 番茄钟
+                    </button>
+                    <button class="pomo-mode-switch-btn" id="modeSwitchFree" data-mode="free">
+                        ⏱️ 自由计时
+                    </button>
+                </div>
                 <div class="pomodoro-timer" id="pomodoroTimer">25:00</div>
 
                 <!-- 环形进度条 -->
@@ -102,10 +112,18 @@
                     </button>
                 </div>
 
+                <!-- 自由计时：保存记录按钮（默认隐藏，FREE 模式显示） -->
+                <div class="pomodoro-save-row">
+                    <button class="pomo-save-btn" id="btnSaveFree" hidden>
+                        💾 保存记录
+                    </button>
+                </div>
+
                 <!-- 番茄计数 -->
                 <div class="pomodoro-count">
                     <span id="todayPomodoros">今日完成: 0 🍅</span>
                     <span id="todayFocusTime">专注: 0m</span>
+                    <span id="todayFreeFocus">自由: 0m</span>
                 </div>
 
                 <!-- 关联任务选择 -->

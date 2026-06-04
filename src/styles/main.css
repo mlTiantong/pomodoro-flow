@@ -303,6 +303,65 @@ html, body {
     color: var(--break-color);
 }
 
+.pomodoro-mode.free-mode {
+    color: #4a9ad9;          /* 自由计时 — 蓝色调，与番茄红区分 */
+}
+
+/* 模式切换（分段控件） */
+.pomo-mode-switch {
+    display: flex;
+    gap: 4px;
+    margin: 0 auto 12px;
+    padding: 3px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 2px solid var(--glass-border);
+    border-radius: 10px;
+    width: fit-content;
+    max-width: 280px;
+}
+.pomo-mode-switch-btn {
+    padding: 5px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex: 1;
+}
+.pomo-mode-switch-btn:hover {
+    color: var(--text-primary);
+}
+.pomo-mode-switch-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(232, 93, 58, 0.4);
+}
+
+/* 自由计时：保存记录按钮 */
+.pomodoro-save-row {
+    margin: 8px 0 4px;
+    text-align: center;
+}
+.pomo-save-btn {
+    padding: 6px 18px;
+    background: linear-gradient(135deg, #6fcf78, #44b76b);
+    border: 2px solid #2a8a3a;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(68, 183, 107, 0.3);
+    transition: all var(--transition-fast);
+}
+.pomo-save-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(68, 183, 107, 0.45);
+}
+
 .pomodoro-timer {
     text-align: center;
     font-size: 56px;

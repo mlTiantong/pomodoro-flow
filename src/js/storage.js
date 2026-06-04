@@ -23,7 +23,8 @@ const STORAGE_KEYS = {
     COMPLETED_TASKS: 'tomato_clock_completed', // 已完成任务归档
     FOCUS_ACTIVITY: 'tomato_clock_focus_activity',
     KEYBOARD_GARDEN: 'tomato_clock_keyboard_garden',
-    AI_CONFIG: 'tomato_clock_ai_config'
+    AI_CONFIG: 'tomato_clock_ai_config',
+    FREE_FOCUS: 'tomato_clock_free_focus'        // 自由计时会话记录
 };
 
 // ============================================================
@@ -66,6 +67,7 @@ const DEFAULT_DAILY_STATS = {
     keystrokes: 0,
     clicks: 0,
     focusActiveSeconds: 0,
+    freeFocusMinutes: 0,                          // 自由计时总分钟（与番茄钟分开统计）
     bestFocusScore: 0,
     lastSessionScore: 0,
     lastSessionKeystrokes: 0,
@@ -544,6 +546,45 @@ const Storage = {
         };
         localStorage.setItem(STORAGE_KEYS.AI_CONFIG, JSON.stringify(normalized));
         return normalized;
+    },
+
+    // ============================================================
+    // 自由计时会话（正向计时）
+    // ============================================================
+
+    /**
+     * 加载所有自由计时会话记录
+     * @returns {Array<{id, startTime, endTime, durationSeconds}>}
+     */
+    loadFreeFocus() {
+        const raw = localStorage.getItem(STORAGE_KEYS.FREE_FOCUS);
+        return safeParse(raw, []);
+    },
+
+    /**
+     * 保存自由计时会话列表
+     * @param {Array} sessions
+     */
+    saveFreeFocus(sessions) {
+        if (!Array.isArray(sessions)) return;
+        localStorage.setItem(STORAGE_KEYS.FREE_FOCUS, JSON.stringify(sessions));
+    },
+
+    /**
+     * 添加一条自由计时会话记录
+     * @param {Object} session
+     * @returns {Array} 更新后的全部会话
+     */
+    addFreeFocusSession(session) {
+        const all = this.loadFreeFocus();
+        all.push({
+            id: generateId(),
+            startTime: session.startTime,
+            endTime: session.endTime,
+            durationSeconds: Math.max(0, Math.floor(Number(session.durationSeconds) || 0))
+        });
+        this.saveFreeFocus(all);
+        return all;
     }
 };
 
